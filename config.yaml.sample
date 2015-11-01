@@ -1,0 +1,7 @@
+checks:
+  - Name: Production
+    Source: http://www.par8o.com/revision
+    Verify: https://github.com/par8o/par8o/commit/%s
+  - Name: Qa
+    Source: http://qa.par8o.com/revision
+    Verify: https://github.com/par8o/par8o/commit/%s
