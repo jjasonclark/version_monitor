@@ -1,90 +1,62 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
-
-	"github.com/kardianos/osext"
-	"github.com/spf13/viper"
+	"os"
+	"os/signal"
+	"time"
 )
 
-func versionDisplay() string {
-	return fmt.Sprintf("%s\nVersion: %s SHA %s\n", AppName, Version, BuildSHA)
+func listenForKillSignal(quitChannel chan<- bool) {
+	signalChannel := make(chan os.Signal, 1)
+	signal.Notify(signalChannel, os.Interrupt, os.Kill)
+	go func() {
+		sig := <-signalChannel
+		fmt.Printf("\nExiting from signal: %s\n", sig)
+		quitChannel <- true
+	}()
 }
 
-var errFetchFail = errors.New("Failed to fetch SHA")
-
-func fetchVersionSha(source, verify string) (string, error) {
-	resp, err := http.Get(source)
-	if err != nil {
-		return "", err
+func processResults(results <-chan checkResult, quit <-chan bool) {
+	for {
+		select {
+		case r := <-results:
+			if r.Err != nil {
+				fmt.Printf("%s: Error: %s\n", r.Name, r.Err)
+			} else {
+				fmt.Printf("%s: %s\n", r.Name, r.Result)
+			}
+		case <-quit:
+			return
+		}
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return "", errFetchFail
-	}
-	var body [40]byte
-	n, err := resp.Body.Read(body[0:])
-	if err != nil && err != io.EOF {
-		return "", err
-	}
-	if n < 1 {
-		return "", errFetchFail
-	}
-	return fmt.Sprintf(verify, string(body[:n])), nil
 }
 
-type check struct {
-	Name   string
-	Source string
-	Verify string
-}
+func pollVersions(checks []Check, interval time.Duration, quitChannel <-chan bool) {
+	fmt.Printf("Polling versions every %s\n", interval)
 
-type checkResult struct {
-	check
-	Err    error
-	Result string
-}
-
-func (c *check) Check() *checkResult {
-	result := &checkResult{*c, nil, ""}
-	result.Result, result.Err = fetchVersionSha(result.Source, result.Verify)
-	return result
-}
-
-func loadChecks() ([]check, error) {
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	if sourcePWD, err := osext.ExecutableFolder(); err == nil {
-		viper.AddConfigPath(sourcePWD)
+	resultsChannel := make(chan checkResult, 10)
+	go processResults(resultsChannel, quitChannel)
+	for {
+		queueAllChecks(checks, resultsChannel)
+		select {
+		case <-time.After(interval):
+			fmt.Println()
+		case <-quitChannel:
+			return
+		}
 	}
-	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
-	}
-
-	var checks []check
-	if err := viper.UnmarshalKey("checks", &checks); err != nil {
-		return nil, err
-	}
-	return checks, nil
 }
 
 func main() {
-	checks, err := loadChecks()
-	if err != nil {
-		log.Fatalf("Fatal error config file: %v \n", err)
-	}
-
 	fmt.Println(versionDisplay())
 
-	for _, c := range checks {
-		blah := c.Check()
-		if blah.Err != nil {
-			log.Fatal(blah.Err)
-		}
-		fmt.Printf("%s: %s\n", blah.Name, blah.Result)
+	if err := loadConfig(); err != nil {
+		log.Fatalf("Fatal error config file: %s\n", err)
 	}
+
+	quitChannel := make(chan bool)
+	listenForKillSignal(quitChannel)
+	pollVersions(getChecks(), getInterval(), quitChannel)
 }
