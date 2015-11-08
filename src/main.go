@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"time"
@@ -18,32 +20,51 @@ func listenForKillSignal(quitChannel chan<- bool) {
 	}()
 }
 
-func processResults(results <-chan checkResult, quit <-chan bool) {
+type monitor struct {
+	past     map[string]checkResult
+	slackURL string
+}
+
+func (m *monitor) postSlack(msg string) error {
+
+	data := url.Values{}
+	data.Set("payload", msg)
+	r, err := http.PostForm(m.slackURL, data)
+	if err != nil {
+		return err
+	}
+	r.Body.Close()
+	return nil
+}
+
+func (m *monitor) processResults(results <-chan checkResult, quit <-chan bool) {
 	for {
 		select {
 		case r := <-results:
 			if r.Err != nil {
 				fmt.Printf("%s: Error: %s\n", r.Name, r.Err)
 			} else {
-				fmt.Printf("%s: %s\n", r.Name, r.Result)
+				last, ok := m.past[r.Name]
+				m.past[r.Name] = r
+				if ok {
+					if last.sameAs(r) {
+						fmt.Printf("%s: Same version as last time %s\n", r.Name, fmt.Sprintf(r.Verify, r.Result))
+					} else {
+						msg, err := r.output()
+						if err != nil {
+							fmt.Printf("Slack message: %s\n", msg)
+							if e := m.postSlack(msg); e != nil {
+								fmt.Printf("Failed to post Slack message: %s\n", e)
+							}
+						} else {
+							fmt.Printf("Error creating Slack message: %s\n", err)
+						}
+					}
+				} else {
+					fmt.Printf("%s: Initial version %s\n", r.Name, fmt.Sprintf(r.Verify, r.Result))
+				}
 			}
 		case <-quit:
-			return
-		}
-	}
-}
-
-func pollVersions(checks []Check, interval time.Duration, quitChannel <-chan bool) {
-	fmt.Printf("Polling versions every %s\n", interval)
-
-	resultsChannel := make(chan checkResult, 10)
-	go processResults(resultsChannel, quitChannel)
-	for {
-		queueAllChecks(checks, resultsChannel)
-		select {
-		case <-time.After(interval):
-			fmt.Println()
-		case <-quitChannel:
 			return
 		}
 	}
@@ -58,5 +79,23 @@ func main() {
 
 	quitChannel := make(chan bool)
 	listenForKillSignal(quitChannel)
-	pollVersions(getChecks(), getInterval(), quitChannel)
+
+	checks := getChecks()
+	interval := getInterval()
+	slackURL := getSlackURL()
+	m := monitor{make(map[string]checkResult), slackURL}
+
+	fmt.Printf("Polling versions every %s\n", interval)
+
+	resultsChannel := make(chan checkResult, 10)
+	go m.processResults(resultsChannel, quitChannel)
+	for {
+		queueAllChecks(checks, resultsChannel)
+		select {
+		case <-time.After(interval):
+			fmt.Println()
+		case <-quitChannel:
+			return
+		}
+	}
 }

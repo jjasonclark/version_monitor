@@ -38,6 +38,10 @@ func getChecks() []Check {
 	return checks
 }
 
+func getSlackURL() string {
+	return viper.GetString("slackURL")
+}
+
 func getInterval() time.Duration {
 	interval := viper.GetString("interval")
 	if d, err := time.ParseDuration(interval); err == nil {

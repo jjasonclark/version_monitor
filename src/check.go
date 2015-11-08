@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -35,6 +34,10 @@ type checkResult struct {
 	Result string
 }
 
+func (left checkResult) sameAs(right checkResult) bool {
+	return left.Result == right.Result
+}
+
 type Check struct {
 	Name   string
 	Source string
@@ -43,11 +46,7 @@ type Check struct {
 
 func (c Check) check(results chan<- checkResult) {
 	sha, err := fetchVersionSha(c.Source)
-	result := checkResult{c, err, ""}
-	if err == nil {
-		result.Result = fmt.Sprintf(c.Verify, sha)
-	}
-	results <- result
+	results <- checkResult{c, err, sha}
 }
 
 func queueAllChecks(checks []Check, resultsChannel chan<- checkResult) {

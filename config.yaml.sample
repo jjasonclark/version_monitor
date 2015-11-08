@@ -1,3 +1,5 @@
+interval: 60s
+slackURL: https://hooks.slack.com/services/000000000/000000000/000000000000000000000000
 checks:
   - Name: Production
     Source: http://www.par8o.com/revision
