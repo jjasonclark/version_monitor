@@ -1,0 +1,9 @@
+interval: 60s
+slackURL: https://hooks.slack.com/services/000000000/000000000/000000000000000000000000
+checks:
+  - Name: Production
+    Source: http://www.example.com/revision
+    Verify: https://github.com/example/example/commit/%s
+  - Name: Qa
+    Source: http://qa.example.com/revision
+    Verify: https://github.com/example/example/commit/%s

@@ -3,20 +3,31 @@ GOSRC_PATH = $(PWD)/src
 OUTPUT_PATH = $(PWD)/build
 OUTPUT_NAME = version_monitor
 GOBIN = go
+DOCKERBIN = docker
 GOBUILD = $(GOBIN) build
 BUILD_SHA = $(shell git rev-parse HEAD)
-SOURCES = $(wildcard $(GOSRC_PATH)/*.go)
+SOURCES = $(subst $(GOSRC_PATH)/,,$(wildcard $(GOSRC_PATH)/*.go))
 LDFLAGS = -ldflags "-X main.BuildSHA=$(BUILD_SHA)"
-GO15VENDOREXPERIMENT = 1
+DOCKER_TAG = vmonitor:latest
 
 all: build
 
 clean:
 	rm -rf $(OUTPUT_PATH)
 
-build-go:
-	$(GOBUILD) $(LDFLAGS) -o $(OUTPUT_PATH)/$(OUTPUT_NAME) $(SOURCES)
+$(OUTPUT_PATH)/$(OUTPUT_NAME):
+	$(DOCKERBIN) run --rm -w /usr/src \
+    -e GO15VENDOREXPERIMENT="1" \
+    -v $(OUTPUT_PATH):/usr/src/build \
+    -v $(GOSRC_PATH):/usr/src \
+    -v $(GOSRC_PATH)/vendor:/go/src \
+    golang:1.5.1-alpine \
+    $(GOBUILD) $(LDFLAGS) -v -o /usr/src/build/$(OUTPUT_NAME) $(SOURCES)
 
-build: build-go
+$(OUTPUT_PATH)/config.yml:
+	cp config.yaml $(OUTPUT_PATH)/config.yml
 
-.PHONY: build build-go clean
+build: $(OUTPUT_PATH)/$(OUTPUT_NAME) $(OUTPUT_PATH)/config.yml
+	$(DOCKERBIN) build -t $(DOCKER_TAG) $(BASE_PATH)
+
+.PHONY: build clean

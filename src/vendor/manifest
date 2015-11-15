@@ -1,0 +1,132 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/BurntSushi/toml",
+			"repository": "https://github.com/BurntSushi/toml",
+			"revision": "056c9bc7be7190eaa7715723883caffa5f8fa3e4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/armon/consul-api",
+			"repository": "https://github.com/armon/consul-api",
+			"revision": "dcfedd50ed5334f96adee43fc88518a4f095e15c",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/coreos/go-etcd/etcd",
+			"repository": "https://github.com/coreos/go-etcd",
+			"revision": "003851be7bb0694fe3cc457a49529a19388ee7cf",
+			"branch": "master",
+			"path": "/etcd"
+		},
+		{
+			"importpath": "github.com/kardianos/osext",
+			"repository": "https://github.com/kardianos/osext",
+			"revision": "6e7f843663477789fac7c02def0d0909e969b4e5",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/kr/pretty",
+			"repository": "https://github.com/kr/pretty",
+			"revision": "e6ac2fc51e89a3249e82157fa0bb7a18ef9dd5bb",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/kr/text",
+			"repository": "https://github.com/kr/text",
+			"revision": "bb797dc4fb8320488f47bf11de07a733d7233e1f",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/magiconair/properties",
+			"repository": "https://github.com/magiconair/properties",
+			"revision": "6ac0b95f449268951dd5c100682ea687a9866ea1",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mitchellh/mapstructure",
+			"repository": "https://github.com/mitchellh/mapstructure",
+			"revision": "281073eb9eb092240d33ef253c404f1cca550309",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/spf13/cast",
+			"repository": "https://github.com/spf13/cast",
+			"revision": "ee815aaf958c707ad07547cd62150d973710f747",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/spf13/jwalterweatherman",
+			"repository": "https://github.com/spf13/jwalterweatherman",
+			"revision": "c2aa07df593850a04644d77bb757d002e517a296",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/spf13/pflag",
+			"repository": "https://github.com/spf13/pflag",
+			"revision": "08b1a584251b5b62f458943640fc8ebd4d50aaa5",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/spf13/viper",
+			"repository": "https://github.com/spf13/viper",
+			"revision": "e37b56e207dda4d79b9defe0548e960658ee8b6b",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/ugorji/go/codec",
+			"repository": "https://github.com/ugorji/go",
+			"revision": "1a8bf87a90ddcdc7deaa0038f127ac62135fdd58",
+			"branch": "master",
+			"path": "/codec"
+		},
+		{
+			"importpath": "github.com/xordataexchange/crypt/backend",
+			"repository": "https://github.com/xordataexchange/crypt",
+			"revision": "749e360c8f236773f28fc6d3ddfce4a470795227",
+			"branch": "master",
+			"path": "/backend"
+		},
+		{
+			"importpath": "github.com/xordataexchange/crypt/config",
+			"repository": "https://github.com/xordataexchange/crypt",
+			"revision": "749e360c8f236773f28fc6d3ddfce4a470795227",
+			"branch": "master",
+			"path": "/config"
+		},
+		{
+			"importpath": "github.com/xordataexchange/crypt/encoding/secconf",
+			"repository": "https://github.com/xordataexchange/crypt",
+			"revision": "749e360c8f236773f28fc6d3ddfce4a470795227",
+			"branch": "master",
+			"path": "/encoding/secconf"
+		},
+		{
+			"importpath": "golang.org/x/crypto/cast5",
+			"repository": "https://go.googlesource.com/crypto",
+			"revision": "b270509459adaed5fe5be459e6ddb0e1f3ef803d",
+			"branch": "master",
+			"path": "/cast5"
+		},
+		{
+			"importpath": "golang.org/x/crypto/openpgp",
+			"repository": "https://go.googlesource.com/crypto",
+			"revision": "b270509459adaed5fe5be459e6ddb0e1f3ef803d",
+			"branch": "master",
+			"path": "/openpgp"
+		},
+		{
+			"importpath": "gopkg.in/fsnotify.v1",
+			"repository": "https://gopkg.in/fsnotify.v1",
+			"revision": "7be54206639f256967dd82fa767397ba5f8f48f5",
+			"branch": "master"
+		},
+		{
+			"importpath": "gopkg.in/yaml.v2",
+			"repository": "https://gopkg.in/yaml.v2",
+			"revision": "53feefa2559fb8dfa8d81baad31be332c97d6c77",
+			"branch": "v2"
+		}
+	]
+}
