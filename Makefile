@@ -9,6 +9,7 @@ BUILD_SHA = $(shell git rev-parse HEAD)
 SOURCES = $(subst $(GOSRC_PATH)/,,$(wildcard $(GOSRC_PATH)/*.go))
 LDFLAGS = -ldflags "-X main.BuildSHA=$(BUILD_SHA)"
 DOCKER_TAG = vmonitor:latest
+DOCKER_IMAGE = $(OUTPUT_NAME).tar
 
 all: build
 
@@ -30,4 +31,7 @@ $(OUTPUT_PATH)/config.yml:
 build: $(OUTPUT_PATH)/$(OUTPUT_NAME) $(OUTPUT_PATH)/config.yml
 	$(DOCKERBIN) build -t $(DOCKER_TAG) $(BASE_PATH)
 
-.PHONY: build clean
+docker-image:
+	$(DOCKERBIN) save -o $(DOCKER_IMAGE) $(DOCKER_TAG)
+
+.PHONY: build clean docker-image
