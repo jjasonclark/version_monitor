@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"net/url"
 	"os"
 	"os/signal"
 	"time"
@@ -20,56 +18,6 @@ func listenForKillSignal(quitChannel chan<- bool) {
 	}()
 }
 
-type monitor struct {
-	past     map[string]checkResult
-	slackURL string
-}
-
-func (m *monitor) postSlack(msg string) error {
-
-	data := url.Values{}
-	data.Set("payload", msg)
-	r, err := http.PostForm(m.slackURL, data)
-	if err != nil {
-		return err
-	}
-	r.Body.Close()
-	return nil
-}
-
-func (m *monitor) processResults(results <-chan checkResult, quit <-chan bool) {
-	for {
-		select {
-		case r := <-results:
-			if r.Err != nil {
-				fmt.Printf("%s: Error: %s\n", r.Name, r.Err)
-			} else {
-				last, ok := m.past[r.Name]
-				m.past[r.Name] = r
-				if ok {
-					if last.sameAs(r) {
-						fmt.Printf("%s: Same version as last time %s\n", r.Name, fmt.Sprintf(r.Verify, r.Result))
-					} else {
-						msg, err := r.output()
-						if err != nil {
-							fmt.Printf("Slack message: %s\n", msg)
-							if e := m.postSlack(msg); e != nil {
-								fmt.Printf("Failed to post Slack message: %s\n", e)
-							}
-						} else {
-							fmt.Printf("Error creating Slack message: %s\n", err)
-						}
-					}
-				} else {
-					fmt.Printf("%s: Initial version %s\n", r.Name, fmt.Sprintf(r.Verify, r.Result))
-				}
-			}
-		case <-quit:
-			return
-		}
-	}
-}
-
 func main() {
 	fmt.Println(versionDisplay())
 
@@ -83,7 +31,7 @@ func main() {
 	checks := getChecks()
 	interval := getInterval()
 	slackURL := getSlackURL()
-	m := monitor{make(map[string]checkResult), slackURL}
+	m := NewMonitor(slackURL)
 
 	fmt.Printf("Polling versions every %s\n", interval)
 
