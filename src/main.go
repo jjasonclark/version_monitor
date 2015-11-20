@@ -41,7 +41,7 @@ func main() {
 		queueAllChecks(checks, resultsChannel)
 		select {
 		case <-time.After(interval):
-			fmt.Println()
+			fmt.Printf("\nRechecking at %s\n", time.Now())
 		case <-quitChannel:
 			return
 		}
