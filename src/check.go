@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strings"
 )
 
 var errFetchFail = errors.New("Failed to fetch SHA")
@@ -35,7 +36,7 @@ type checkResult struct {
 }
 
 func (left checkResult) sameAs(right checkResult) bool {
-	return left.Result == right.Result
+	return strings.Compare(left.Result, right.Result) == 0
 }
 
 type Check struct {
