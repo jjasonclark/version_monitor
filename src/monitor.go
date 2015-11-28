@@ -39,9 +39,9 @@ func (m *monitor) compareVersions(last, r checkResult) {
 func (m *monitor) formatMessage(r checkResult) {
 	msg, err := r.output()
 	if err != nil {
-		m.reportToSlack(msg)
-	} else {
 		fmt.Printf("Error creating Slack message: %s\n", err)
+	} else {
+		m.reportToSlack(msg)
 	}
 }
 
